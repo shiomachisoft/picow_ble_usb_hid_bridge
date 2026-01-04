@@ -13,7 +13,7 @@ Since it is recognized as a standard USB HID device by the PC, it can also be us
     *   In the standby state where BLE connection is not complete, the LED on the Pico W will **blink**.
 
 2.  **Pairing**
-    *   Put the BLE device (Keyboards, mice, and other peripherals) you want to connect into pairing mode.
+    *   Put the BLE HID device (Keyboards, mice, and other peripherals) you want to connect into pairing mode.
     *   *Refer to the manual of each BLE device for how to enter pairing mode.*
 
 3.  **Connection Complete**
