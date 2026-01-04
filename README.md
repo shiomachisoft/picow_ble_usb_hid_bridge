@@ -2,7 +2,7 @@
 
 ## Overview
 
-This software is firmware for the Raspberry Pi Pico W. It allows you to use your favorite BLE keyboards or mice(BLE HID Device) as wired USB devices, even on PCs that do not have Bluetooth functionality.
+This software is firmware for the Raspberry Pi Pico W. It allows you to use your favorite BLE HID devices such as keyboards or mice as wired USB devices, even on PCs that do not have Bluetooth functionality.
 It operates as a BLE Central (Host), forwarding input information from connected BLE devices to a PC (USB Host) via USB.
 Since it is recognized as a standard USB HID device by the PC, it can also be used in UEFI environments.
 
