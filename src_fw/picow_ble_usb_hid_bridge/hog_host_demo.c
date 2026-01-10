@@ -325,7 +325,10 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 
         case GATTSERVICE_SUBEVENT_HID_SERVICE_DISCONNECTED:
             printf("HID service client disconnected\n");
-            hog_start_connect();
+            // @@del
+            // =====>
+            //hog_start_connect();
+            // <=====
             break;
 
         case GATTSERVICE_SUBEVENT_HID_REPORT:
