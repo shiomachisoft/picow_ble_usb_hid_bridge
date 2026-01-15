@@ -43,12 +43,11 @@ To achieve a comfortable operational feel as an input device, the following opti
 *   **High-Speed Polling**:
     *   The USB endpoint polling interval (`bInterval`) is set to `1` (1ms), configured to transfer reports to the PC at the fastest speed.
 
-### Dynamic USB Descriptor Configuration
-*   **Descriptor Pass-through**:
-    *   Upon establishing a BLE connection, the "HID Report Descriptor" obtained from the BLE device is provided as-is to the PC (USB Host).
-    *   This ensures that specific functions of the connected BLE device (multimedia keys, etc.) are correctly recognized on the PC side.
-*   **Automatic Re-enumeration**:
-    *   USB reconnection processing is automatically performed at the timing when the BLE connection is completed, causing the PC to load the new descriptor.
+### Report Pass-through
+*   **HID Report Descriptor**:
+    *   Upon completion of the BLE connection, a USB reconnection is triggered to pass the "HID Report Descriptor" acquired from the BLE device directly to the PC (USB host). This ensures that device-specific features, such as multimedia keys, are correctly recognized by the PC.
+*   **HID Input Report**:
+    *   After the BLE connection is established, the "HID Input Report" received from the BLE device is passed through to the PC (USB host) without modification.
 
 ### Connection Management
 *   **Smart Scan**:
@@ -61,11 +60,6 @@ This software is developed and integrated based on sample code from the followin
 
 *   **TinyUSB**: `dev_hid_composite` sample
 *   **BTstack**: `hog_host_demo` sample
-
-### Processing Flow
-1.  **BLE Connection**: BTstack running on Core 1 connects to the BLE device and receives the HID Report Descriptor and HID Input Report.
-2.  **USB Reconfiguration**: Upon connection completion, a request is sent from Core 1 to Core 0 to perform USB bus reconnection. At this time, the descriptor obtained from the BLE device is notified to the PC.
-3.  **Data Transfer**: HID reports received from the BLE device are passed to Core 0 via a shared queue with spinlocks and immediately sent to the PC via USB.
 
 ## License
 
