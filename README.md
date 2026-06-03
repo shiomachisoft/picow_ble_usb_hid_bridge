@@ -6,7 +6,7 @@ This software is firmware for the Raspberry Pi Pico W. It allows you to use a si
 It operates as a BLE Central (Host), forwarding input information from connected BLE devices to a PC (USB Host) via USB.
 Since it is recognized as a standard USB HID device by the PC, it can also be used in UEFI environments.
 
-<img width="716" height="391" alt="image" src="https://github.com/user-attachments/assets/9cdb8082-e08d-47e2-865c-daaffba852d6" />
+<img width="716" height="391" alt="image" src="https://github.com/user-attachments/assets/6d4410d5-2912-4bd5-93dc-8aef206fb2b0" />
 
 ## Usage
 
