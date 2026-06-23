@@ -1,10 +1,9 @@
 # Pico W BLE to USB HID Bridge
 
-For the reverse (USB to BLE) bridge, please see [this repository](https://github.com/shiomachisoft/pico_usb_ble_hid_bridge).
-
 ## Overview
 
-This software is firmware for the Raspberry Pi Pico W. It allows you to use a single BLE HID device, such as a keyboard or mouse, as a wired USB device, even on PCs without Bluetooth functionality. It operates as a BLE Central (Host), forwarding input data from the connected BLE device to the host PC via USB. Since it is recognized as a standard USB HID device by the PC, it can also be used in UEFI environments.
+This software is firmware for the Raspberry Pi Pico W. It allows you to use a single BLE HID device, such as a keyboard or mouse, as a wired USB device, even on PCs without Bluetooth functionality. It operates as a BLE Central (Host), forwarding input data from the connected BLE device to the host PC via USB. Since it is recognized as a standard USB HID device by the PC, it can also be used in UEFI environments.  
+*For the reverse (USB to BLE) bridge, please see [this repository](https://github.com/shiomachisoft/pico_usb_ble_hid_bridge).
 
 <img width="716" height="391" alt="image" src="https://github.com/user-attachments/assets/6d4410d5-2912-4bd5-93dc-8aef206fb2b0" />
 
