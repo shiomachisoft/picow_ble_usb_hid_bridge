@@ -72,6 +72,15 @@
 // Timeout constants
 #define CONNECTION_TIMEOUT_MS 3000  // 3 seconds for connection attempt
 #define SCAN_TIMEOUT_MS       5000  // 5 seconds for scanning
+
+// Connection parameters requested once the link is encrypted. Peripherals are
+// free to advertise a slow, power-saving interval; for an input device the
+// round trip is what the user feels, so ask for the shortest interval the LE
+// spec allows a peripheral to be required to honour.
+#define CONN_INTERVAL_MIN_UNITS 10  // x 1.25 ms = 12.5 ms
+#define CONN_INTERVAL_MAX_UNITS 12  // x 1.25 ms = 15 ms
+#define CONN_LATENCY_EVENTS     0   // no skipped connection events
+#define CONN_TIMEOUT_UNITS      300 // x 10 ms = 3 s supervision timeout
 // <=====
 
 // TAG to store remote device address and type in TLV
@@ -137,6 +146,17 @@ uint16_t get_ble_hid_report_descriptor_len(void);
 // Forward declarations
 static void hog_start_scan(void);
 static void hog_start_connect(void);
+
+// Ask the peripheral for an input-device friendly connection interval.
+static void request_hid_connection_parameters(void)
+{
+    if (connection_handle == HCI_CON_HANDLE_INVALID) return;
+    gap_request_connection_parameter_update(connection_handle,
+                                            CONN_INTERVAL_MIN_UNITS,
+                                            CONN_INTERVAL_MAX_UNITS,
+                                            CONN_LATENCY_EVENTS,
+                                            CONN_TIMEOUT_UNITS);
+}
 // <=====
 
 // @@chg
@@ -453,6 +473,10 @@ static void sm_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *pa
             switch (sm_event_pairing_complete_get_status(packet)){
                 case ERROR_CODE_SUCCESS:
                     BLE_LOG("Pairing complete, success\n");
+                    // @@add
+                    // =====>
+                    request_hid_connection_parameters();
+                    // <=====
                     connect_to_service = true;
                     break;
                 // @@chg
@@ -470,6 +494,10 @@ static void sm_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *pa
             break;
         case SM_EVENT_REENCRYPTION_COMPLETE:
             BLE_LOG("Re-encryption complete, success\n");
+            // @@add
+            // =====>
+            request_hid_connection_parameters();
+            // <=====
             connect_to_service = true;
             break;
         default:
