@@ -23,7 +23,9 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico_w CACHE STRING "Board type")
+# Board type. Both pico_w (RP2040) and pico2_w (RP2350) are supported;
+# override on the command line with -DPICO_BOARD=pico_w.
+set(PICO_BOARD pico2_w CACHE STRING "Board type")
 
 # Optional log categories. Both are off by default so a normal build stays quiet.
 option(ENABLE_USB_LOGGING "Log USB device events and HID report traffic" OFF)
@@ -60,6 +62,7 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     pico_stdlib
     pico_multicore
+    pico_flash          # flash_safe_execute_core_init(), used in main()
     hardware_sync
     pico_unique_id
     tinyusb_device
