@@ -37,6 +37,7 @@
 // =====>
 #define USB_REINIT_STABILIZATION_DELAY 100 // ms
 #define LED_BLINKING_INTERVAL 200 // ms
+#define HEARTBEAT_INTERVAL 5000 // ms
 // <=====
 //--------------------------------------------------------------------+
 // GLOBAL VARIABLES
@@ -75,11 +76,14 @@ int main(void)
     // @@chg
     // =====>
     stdio_init_all();
-    CMN_Init(); 
+    CMN_Init();
+
+    SYS_LOG("BLE to USB HID bridge starting\n");
 
     // Initialize to lock out CPU Core 0 when btstack writes to flash memory on CPU Core 1
     flash_safe_execute_core_init();
 
+    SYS_LOG("Launching the BLE host on Core 1\n");
     multicore_launch_core1(ble_host_main);
 
     usb_dev_main();
@@ -96,12 +100,24 @@ int main(void)
 // This function loops indefinitely, handling USB events, LED blinking, and HID tasks.
 // It also handles USB re-initialization requests from Core1.
 void usb_dev_main(void)
-{    
-    while (1) 
+{
+    SYS_LOG("Entering the USB device main loop on Core 0\n");
+
+    while (1)
     {
+#ifdef ENABLE_HEARTBEAT_LOGS
+        // Periodic proof that Core 0 is still servicing its main loop.
+        static uint32_t last_heartbeat = 0;
+        if (board_millis() - last_heartbeat >= HEARTBEAT_INTERVAL) {
+            last_heartbeat = board_millis();
+            SYS_LOG("Heartbeat (Core 0 running)\n");
+        }
+#endif
+
         // Check for USB re-initialization request from Core1 (BLE host)
         if (g_usb_reinit_request) {
-            g_usb_reinit_request = false; 
+            g_usb_reinit_request = false;
+            USB_LOG("Re-initialization requested by the BLE host\n");
             if (tud_mounted()) {
                 tud_disconnect(); // Disconnect the USB device
                 board_delay(USB_REINIT_STABILIZATION_DELAY); // Wait a bit for stabilization
@@ -125,11 +141,13 @@ void usb_dev_main(void)
 // Invoked when device is mounted
 void tud_mount_cb(void)
 {
+    USB_LOG("Device mounted\n");
 }
 
 // Invoked when device is unmounted
 void tud_umount_cb(void)
 {
+    USB_LOG("Device unmounted\n");
 }
 
 // Invoked when usb bus is suspended
@@ -137,12 +155,14 @@ void tud_umount_cb(void)
 // Within 7ms, device must draw an average of current less than 2.5 mA from bus
 void tud_suspend_cb(bool remote_wakeup_en)
 {
+    USB_LOG("Bus suspended (remote wakeup %s)\n", remote_wakeup_en ? "allowed" : "denied");
     (void) remote_wakeup_en;
 }
 
 // Invoked when usb bus is resumed
 void tud_resume_cb(void)
 {
+    USB_LOG("Bus resumed\n");
 }
 
 //--------------------------------------------------------------------+
@@ -167,9 +187,14 @@ bool send_hid_report(void)
             return bRet;
         }                 
         // If the HID interface is ready, try to send the report
-        if (tud_hid_ready()) {      
-            // Try to send the report
+        if (tud_hid_ready()) {
+            // Try to send the report.
+            // The report ID, if the device uses any, is already the first byte of
+            // stHidRpt.report. Passing 0 here tells TinyUSB to send the buffer
+            // verbatim; passing a non-zero ID would prepend a second one and shift
+            // every following byte.
             if (tud_hid_report(0, stHidRpt.report, stHidRpt.report_len)) {
+                USB_LOG("HID report sent (%u bytes)\n", stHidRpt.report_len);
                 // If sent successfully, remove the report from the queue
                 CMN_AdvanceQueue(CMN_QUE_KIND_HID_RPT);
                 bRet = true;
@@ -225,6 +250,7 @@ uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id, hid_report_t
 // received data on OUT endpoint ( Report ID = 0, Type = 0 )
 void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize)
 {
+    USB_LOG("HID SET_REPORT (id=%u type=%u size=%u)\n", report_id, report_type, bufsize);
     (void) instance;
     // @@chg
     // =====>

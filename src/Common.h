@@ -12,6 +12,22 @@
 #include "pico/cyw43_arch.h"
 #include "Type.h"
 
+// [Logging]
+// @@add
+// =====>
+// Both cores share a single serial console, so every message is tagged with the
+// subsystem that emitted it. USB tracing is chatty and only useful when
+// debugging enumeration, so it is compiled out unless CMake enables it.
+#define SYS_LOG(...) printf("[SYS] " __VA_ARGS__)
+#define BLE_LOG(...) printf("[BLE] " __VA_ARGS__)
+
+#ifdef ENABLE_USB_LOGGING
+#define USB_LOG(...) printf("[USB] " __VA_ARGS__)
+#else
+#define USB_LOG(...) ((void)0)
+#endif
+// <=====
+
 // [Definitions]
 // Maximum size of the HID queue
 #define CMN_QUE_DATA_MAX_HID_RPT 32

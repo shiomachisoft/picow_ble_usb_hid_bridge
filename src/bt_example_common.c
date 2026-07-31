@@ -9,6 +9,10 @@
 #include "pico/cyw43_arch.h"
 #include "pico/stdlib.h"
 #include "btstack.h"
+// @@add
+// =====>
+#include "Common.h"
+// <=====
 
 // Start the btstack example
 int btstack_main(int argc, const char * argv[]);
@@ -24,7 +28,7 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
         case BTSTACK_EVENT_STATE:
             if (btstack_event_state_get_state(packet) != HCI_STATE_WORKING) return;
             gap_local_bd_addr(local_addr);
-            printf("BTstack up and running on %s.\n", bd_addr_to_str(local_addr));
+            BLE_LOG("BTstack up and running on %s.\n", bd_addr_to_str(local_addr));
             break;
         default:
             break;
@@ -34,7 +38,7 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
 int ble_bridge_bt_example_init(void) {
     // initialize CYW43 driver architecture (will enable BT if/because CYW43_ENABLE_BLUETOOTH == 1)
     if (cyw43_arch_init()) {
-        printf("failed to initialise cyw43_arch\n");
+        BLE_LOG("failed to initialise cyw43_arch\n");
         return -1;
     }
 

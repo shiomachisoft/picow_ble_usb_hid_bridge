@@ -179,7 +179,7 @@ static bool adv_event_contains_hid_service(const uint8_t * packet){
 static void hog_scan_timeout(btstack_timer_source_t * ts){
     UNUSED(ts);
     if (app_state != W4_HID_DEVICE_FOUND) return;
-    printf("Scan timeout. Switching to bonded connection attempt...\n");
+    BLE_LOG("Scan timeout. Switching to bonded connection attempt...\n");
     gap_stop_scan();
     hog_start_connect();
 }
@@ -191,7 +191,7 @@ static void hog_scan_timeout(btstack_timer_source_t * ts){
 static void hog_start_scan(void){
 	// @@chg
 	// =====>
-    printf("Scanning for LE HID devices (Timeout %dms)...\n", SCAN_TIMEOUT_MS);
+    BLE_LOG("Scanning for LE HID devices (Timeout %dms)...\n", SCAN_TIMEOUT_MS);
     app_state = W4_HID_DEVICE_FOUND;
 
     // Fix: Remove timer before adding to prevent assertion if scan is restarted during reconnection
@@ -216,7 +216,7 @@ static void hog_connection_timeout(btstack_timer_source_t * ts){
     UNUSED(ts);
     // @@chg
     // =====>
-    printf("Connection timeout. Switching to scan...\n");
+    BLE_LOG("Connection timeout. Switching to scan...\n");
     // <=====
     gap_connect_cancel();
     hog_start_scan();
@@ -229,7 +229,7 @@ static void hog_connection_timeout(btstack_timer_source_t * ts){
 static void hog_connect(void) {
 	// @@chg
 	// =====>
-    printf("Connecting to device %s (Timeout %dms)...\n", bd_addr_to_str(remote_device.addr), CONNECTION_TIMEOUT_MS);
+    BLE_LOG("Connecting to device %s (Timeout %dms)...\n", bd_addr_to_str(remote_device.addr), CONNECTION_TIMEOUT_MS);
     
     // Fix: Remove timer before adding. If a previous timer (like scan timeout) is still active, 
     // btstack_run_loop_add_timer would trigger an assertion failure.
@@ -256,7 +256,7 @@ static void hog_start_connect(void){
         if (len == sizeof(remote_device)){
             // @@chg
             // =====>
-            printf("Bonded device found, trying to connect...\n");
+            BLE_LOG("Bonded device found, trying to connect...\n");
             // <=====
             hog_connect();
             return;
@@ -270,7 +270,7 @@ static void hog_start_connect(void){
  * In case of error, disconnect and start scanning again
  */
 static void handle_outgoing_connection_error(void){
-    printf("Error occurred, disconnect and start over\n");
+    BLE_LOG("Error occurred, disconnect and start over\n");
     gap_disconnect(connection_handle);
     hog_start_scan();
 }
@@ -299,7 +299,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
             status = gattservice_subevent_hid_service_connected_get_status(packet);
             switch (status){
                 case ERROR_CODE_SUCCESS:
-                    printf("HID service client connected, found %d services\n", 
+                    BLE_LOG("HID service client connected, found %d services\n", 
                         gattservice_subevent_hid_service_connected_get_num_instances(packet));
         
                     // store device as bonded
@@ -307,7 +307,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
                         btstack_tlv_singleton_impl->store_tag(btstack_tlv_singleton_context, TLV_TAG_HOGD, (const uint8_t *) &remote_device, sizeof(remote_device));
                     }
                     // done
-                    printf("Ready - please start typing or mousing..\n");
+                    BLE_LOG("Ready - please start typing or mousing..\n");
                     app_state = READY;
                     // Re-initialize the USB device to make the USB host re-acquire the descriptor.
                     // This flag is referenced by USB task.
@@ -317,14 +317,14 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
                     // <=====
                     break;
                 default:
-                    printf("HID service client connection failed, status 0x%02x.\n", status);
+                    BLE_LOG("HID service client connection failed, status 0x%02x.\n", status);
                     handle_outgoing_connection_error();
                     break;
             }
             break;
 
         case GATTSERVICE_SUBEVENT_HID_SERVICE_DISCONNECTED:
-            printf("HID service client disconnected\n");
+            BLE_LOG("HID service client disconnected\n");
             // @@del
             // =====>
             //hog_start_connect();
@@ -378,12 +378,12 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                     gap_event_advertising_report_get_address(packet, remote_device.addr);
                     remote_device.addr_type = gap_event_advertising_report_get_address_type(packet);
                     
-                    printf("Found HID device, connecting...\n");
+                    BLE_LOG("Found HID device %s, connecting...\n", bd_addr_to_str(remote_device.addr));
                     hog_connect();
                     break;
                 case HCI_EVENT_DISCONNECTION_COMPLETE:
                     connection_handle = HCI_CON_HANDLE_INVALID;
-                    printf("\nDisconnected, starting over...\n");
+                    BLE_LOG("Disconnected, starting over...\n");
                     
                     // Fix: Ensure timer is cleared upon disconnection before starting over
                     btstack_run_loop_remove_timer(&connection_timer);
@@ -432,37 +432,37 @@ static void sm_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *pa
 
     switch (hci_event_packet_get_type(packet)) {
         case SM_EVENT_JUST_WORKS_REQUEST:
-            printf("Just works requested\n");
+            BLE_LOG("Just works requested\n");
             sm_just_works_confirm(sm_event_just_works_request_get_handle(packet));
             break;
         case SM_EVENT_NUMERIC_COMPARISON_REQUEST:
-            printf("Confirming numeric comparison: %"PRIu32"\n", sm_event_numeric_comparison_request_get_passkey(packet));
+            BLE_LOG("Confirming numeric comparison: %"PRIu32"\n", sm_event_numeric_comparison_request_get_passkey(packet));
             sm_numeric_comparison_confirm(sm_event_passkey_display_number_get_handle(packet));
             break;
         case SM_EVENT_PASSKEY_DISPLAY_NUMBER:
-            printf("Display Passkey: %"PRIu32"\n", sm_event_passkey_display_number_get_passkey(packet));
+            BLE_LOG("Display Passkey: %"PRIu32"\n", sm_event_passkey_display_number_get_passkey(packet));
             break;
         case SM_EVENT_PAIRING_COMPLETE:
             switch (sm_event_pairing_complete_get_status(packet)){
                 case ERROR_CODE_SUCCESS:
-                    printf("Pairing complete, success\n");
+                    BLE_LOG("Pairing complete, success\n");
                     connect_to_service = true;
                     break;
                 // @@chg
                 // =====>    
                 case ERROR_CODE_CONNECTION_TIMEOUT:
-                    printf("Pairing failed, timeout\n");
+                    BLE_LOG("Pairing failed, timeout\n");
                     handle_outgoing_connection_error();
                     break;
                 default:
-                    printf("Pairing failed, status 0x%02x\n", sm_event_pairing_complete_get_status(packet));
+                    BLE_LOG("Pairing failed, status 0x%02x\n", sm_event_pairing_complete_get_status(packet));
                     handle_outgoing_connection_error();
                     break;
                 // <=====
             }
             break;
         case SM_EVENT_REENCRYPTION_COMPLETE:
-            printf("Re-encryption complete, success\n");
+            BLE_LOG("Re-encryption complete, success\n");
             connect_to_service = true;
             break;
         default:
@@ -471,7 +471,7 @@ static void sm_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *pa
 
     if (connect_to_service){
         // continue - query primary services
-        printf("Search for HID service.\n");
+        BLE_LOG("Search for HID service.\n");
         app_state = W4_HID_CLIENT_CONNECTED;
         hids_client_connect(connection_handle, handle_gatt_client_event, protocol_mode, &hids_cid);
     }

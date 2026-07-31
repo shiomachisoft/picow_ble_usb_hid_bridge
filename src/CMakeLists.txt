@@ -25,6 +25,14 @@ endif()
 # ====================================================================================
 set(PICO_BOARD pico_w CACHE STRING "Board type")
 
+# Optional log categories. Both are off by default so a normal build stays quiet.
+option(ENABLE_USB_LOGGING "Log USB device events and HID report traffic" OFF)
+option(ENABLE_HEARTBEAT_LOGS "Log a periodic Core 0 heartbeat" OFF)
+
+# Baud rate of the log UART. Lower it for a receiver that cannot keep up, such
+# as a bit-banged software UART on an AVR.
+set(UART_BAUD_RATE 115200 CACHE STRING "Baud rate of the log UART")
+
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
@@ -66,7 +74,17 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     )
 target_compile_definitions(${PROJECT_NAME} PRIVATE 
     CYW43_LWIP=0
-    )    
+    PICO_DEFAULT_UART_BAUD_RATE=${UART_BAUD_RATE}
+    )
+
+if(ENABLE_USB_LOGGING)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE ENABLE_USB_LOGGING=1)
+endif()
+
+if(ENABLE_HEARTBEAT_LOGS)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE ENABLE_HEARTBEAT_LOGS=1)
+endif()
+
 pico_btstack_make_gatt_header(${PROJECT_NAME} PRIVATE 
     ${CMAKE_CURRENT_LIST_DIR}/hog_host_demo.gatt
     )
