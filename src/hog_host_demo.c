@@ -99,7 +99,14 @@ static uint16_t hids_cid;
 static hid_protocol_mode_t protocol_mode = HID_PROTOCOL_MODE_REPORT;
 
 // SDP
-static uint8_t hid_descriptor_storage[500];
+// @@chg
+// =====>
+// The whole HID report descriptor of the remote device is cached here and later
+// handed to the USB host verbatim. Keyboards with media keys, multi-device
+// switching or vendor collections run well past the 500 bytes the BTstack
+// example assumes, and the surplus is silently dropped, so give it 2 KB.
+static uint8_t hid_descriptor_storage[2048];
+// <=====
 
 // used to implement connection timeout and reconnect timer
 static btstack_timer_source_t connection_timer;
