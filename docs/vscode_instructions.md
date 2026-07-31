@@ -1,26 +1,25 @@
-# Building with the Visual Studio Code extension
+# Building in Visual Studio Code
+
+An alternative to the CMake instructions in [building.md](building.md), using
+the Raspberry Pi Pico extension.
 
 ## Prerequisites
 
-Install the "Raspberry Pi Pico" extension in Visual Studio Code (VS Code) on Windows.
+Install the "Raspberry Pi Pico" extension in Visual Studio Code on Windows.
+These versions are known to work:
 
-Confirmed to work with the following versions:
+- VS Code 1.107.1
+- Raspberry Pi Pico extension 0.19.0
 
-* VS Code: 1.107.1
-* Raspberry Pi Pico extension: 0.19.0
+## Steps
 
-## Build Steps
+1.  Open a new VS Code window.
+2.  Click "Import Project" in the Raspberry Pi Pico extension.
+3.  For "Location", select the `src` folder, which holds the firmware sources.
+4.  For "Select Pico SDK version", select "v2.2.0".
+5.  Click "Import".
+6.  Under "Switch Build Type", pick "Release" or "Debug".
+7.  Click "Compile Project".
 
-1. Open a new VS Code window.
-
-2. Click "Import Project" via the Raspberry Pi Pico extension.
-
-3. Select the "src" folder (where the FW source files are located) for "Location".
-
-4. Select "v2.2.0" for "Select Pico SDK version".
-
-5. Click "Import".
-
-6. Select "Release" or "Debug" as needed for "Switch Build Type".
-
-7. Click "Compile Project" to start the build.
+This configures CMake with the defaults, so you get a Pico 2 W build. Use the
+command-line build to choose a different board or any of the other options.

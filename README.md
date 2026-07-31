@@ -1,67 +1,55 @@
-# Pico W BLE to USB HID Bridge
+# Pico W / Pico 2 W BLE to USB HID Bridge
 
-## Overview
+Firmware that turns a Raspberry Pi Pico W or Pico 2 W into a wired adapter for a
+Bluetooth keyboard or mouse. The board connects to the BLE device as a Central
+and presents it to the PC as an ordinary USB HID device, so the keyboard works
+on machines without Bluetooth and in UEFI setup screens.
 
-This software is firmware for the Raspberry Pi Pico W. It allows you to use a single BLE HID device, such as a keyboard or mouse, as a wired USB device, even on PCs without Bluetooth functionality. It operates as a BLE Central (Host), forwarding input data from the connected BLE device to the host PC via USB. Since it is recognized as a standard USB HID device by the PC, it can also be used in UEFI environments.  
-*For the reverse (USB to BLE) bridge, please see [this repository](https://github.com/shiomachisoft/pico_usb_ble_hid_bridge).
+For the opposite direction, USB to BLE, see
+[pico_usb_ble_hid_bridge](https://github.com/shiomachisoft/pico_usb_ble_hid_bridge).
 
 <img width="716" height="391" alt="image" src="https://github.com/user-attachments/assets/6d4410d5-2912-4bd5-93dc-8aef206fb2b0" />
 
 ## Usage
 
-1.  **Connect Pico W**
-    *   Connect the Pico W to the PC's USB port.
-    *   In the standby state where BLE connection is not complete, the LED on the Pico W will **blink**.
+1.  Plug the board into a USB port. The LED blinks while nothing is connected
+    over BLE.
+2.  Put the keyboard or mouse into pairing mode; its manual will say how.
+3.  The LED goes solid once the device is connected, and the PC sees a USB input
+    device.
 
-2.  **Pairing**
-    *   Put the BLE HID device (keyboards, mice, and other peripherals) you want to connect into pairing mode.
-    *   *Refer to the manual of each BLE device for how to enter pairing mode.*
+If your device requires a paring code, you will need to read that from the
+logs. The firmware logs what it is doing over the UART pins. See
+[docs/troubleshooting.md](docs/troubleshooting.md) for how to read it.
 
-3.  **Connection Complete**
-    *   When the Pico W detects the device and the connection is complete, the LED changes to **steady on**.
-    *   It will be recognized as a USB input device on the PC side, and operation becomes possible.
+After the first pairing, the Pico persistently stores which device it needs to
+reconnect to, at the next power-on. Some peripherals sleep deeply, and do not
+reconnect unprompted — press a key or two to wake them up and reconnect.
 
-### Notes
-*   **Reconnection**: Once paired (bonded), you do not need to put the BLE device into pairing mode next time. It will automatically reconnect just by turning on the power.
-*   **Keyboard Behavior**: Some BLE keyboards (with power-saving features, etc.) may not enter reconnection mode unless a key is pressed to wake them from sleep. If it does not connect, try pressing a random key a few times.
+## How it works
 
-## Verified Devices
+**Two cores.** Core 0 runs the USB device stack and Core 1 runs BTstack, so a
+report received over BLE can be sent over USB with little delay between the two.
+The USB endpoint is polled every 1 ms.
 
-Operation has been verified with the following devices:
+**Pass-through.** The HID report descriptor is read from the BLE device and
+handed to the PC unchanged, so device-specific keys such as media controls keep
+working. Input reports are forwarded byte for byte. The USB device re-enumerates
+once the BLE link is up, which is what makes the PC read the new descriptor.
 
-*   **Mouse**: Sanwa Supply MA-SBB314
-*   **Keyboard**: ELECOM TK-FBM119
+**Connection handling.** The bridge alternates between reconnecting to a bonded
+device and scanning for new ones. Once the link is encrypted it asks for a
+12.5-15 ms connection interval, so a power-saving default on the peripheral does
+not turn into input lag.
 
-## Features
+## Documentation
 
-### Low Latency Efforts
-To achieve a comfortable operational feel as an input device, the following optimizations are performed:
-
-*   **Multi-core Distributed Processing**:
-    *   **Core 0**: Handles communication processing as a USB device.
-    *   **Core 1**: Handles communication processing as a BLE Host (Central).
-    *   By operating these in parallel, processing delay from BLE reception to USB transmission is minimized.
-*   **High-Speed Polling**:
-    *   The USB endpoint polling interval (`bInterval`) is set to `1` (1ms), configured to transfer reports to the PC at the fastest speed.
-
-### Report Pass-through
-*   **HID Report Descriptor**:
-    *   Upon completion of the BLE connection, a USB reconnection is triggered to pass the "HID Report Descriptor" acquired from the BLE device directly to the PC (USB host). This ensures that device-specific features, such as multimedia keys, are correctly recognized by the PC.
-*   **HID Input Report**:
-    *   After the BLE connection is established, the "HID Input Report" received from the BLE device is passed through to the PC (USB host) without modification.
-
-### Connection Management
-*   **Smart Scan**:
-    *   Operates by automatically switching between reconnection to known devices (bonded devices) and scanning for new devices every few seconds.
-
-## Technical Details
-
-### Base Projects
-This software is developed and integrated based on sample code from the following open source projects:
-
-*   **TinyUSB**: `dev_hid_composite` sample
-*   **BTstack**: `hog_host_demo` sample
+- [Building](docs/building.md) — toolchains, flashing, build options
+- [Building in VS Code](docs/vscode_instructions.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Verified devices](docs/verified_devices.md)
 
 ## License
 
-For license details of this software, please refer to LICENSE.TXT.
+Built from the TinyUSB `dev_hid_composite` and BTstack `hog_host_demo` samples;
+see LICENSE.TXT for the terms of both.
