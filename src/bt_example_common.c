@@ -31,7 +31,7 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
     }
 }
 
-int picow_bt_example_init(void) {
+int ble_bridge_bt_example_init(void) {
     // initialize CYW43 driver architecture (will enable BT if/because CYW43_ENABLE_BLUETOOTH == 1)
     if (cyw43_arch_init()) {
         printf("failed to initialise cyw43_arch\n");
@@ -45,7 +45,7 @@ int picow_bt_example_init(void) {
     return 0;
 }
 
-void picow_bt_example_main(void) {
+void ble_bridge_bt_example_main(void) {
 
     btstack_main(0, NULL);
 }

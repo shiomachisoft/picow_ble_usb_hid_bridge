@@ -9,10 +9,10 @@
  *
  * \return 0 if ok
  */
-int picow_bt_example_init(void);
+int ble_bridge_bt_example_init(void);
 
 /*
  * \brief Run the BTstack example
  *
  */
-void picow_bt_example_main(void);
+void ble_bridge_bt_example_main(void);

@@ -28,7 +28,9 @@ set(PICO_BOARD pico_w CACHE STRING "Board type")
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(picow_ble_usb_hid_bridge C CXX ASM)
+# Has to stay below the import above: the SDK installs its toolchain file there,
+# and CMake only honours that before the first project() call.
+project(ble_usb_hid_bridge LANGUAGES C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
@@ -40,14 +42,14 @@ add_compile_options(-Wall
         )
 
 # Add executable.  
-add_executable(picow_ble_usb_hid_bridge
+add_executable(${PROJECT_NAME}
     main.c
     usb_descriptors.c
     hog_host_demo.c
-    picow_bt_example_common.c
+    bt_example_common.c
     Common.c
     )  
-target_link_libraries(picow_ble_usb_hid_bridge
+target_link_libraries(${PROJECT_NAME}
     pico_stdlib
     pico_multicore
     hardware_sync
@@ -59,19 +61,19 @@ target_link_libraries(picow_ble_usb_hid_bridge
     pico_btstack_cyw43
     pico_cyw43_arch_threadsafe_background
     )   
-target_include_directories(picow_ble_usb_hid_bridge PRIVATE
+target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     )
-target_compile_definitions(picow_ble_usb_hid_bridge PRIVATE 
+target_compile_definitions(${PROJECT_NAME} PRIVATE 
     CYW43_LWIP=0
     )    
-pico_btstack_make_gatt_header(picow_ble_usb_hid_bridge PRIVATE 
+pico_btstack_make_gatt_header(${PROJECT_NAME} PRIVATE 
     ${CMAKE_CURRENT_LIST_DIR}/hog_host_demo.gatt
     )
 
 # disable usb output, enable uart output
-pico_enable_stdio_usb(picow_ble_usb_hid_bridge 0)
-pico_enable_stdio_uart(picow_ble_usb_hid_bridge 1)
+pico_enable_stdio_usb(${PROJECT_NAME} 0)
+pico_enable_stdio_uart(${PROJECT_NAME} 1)
 
 # create map/bin/hex/uf2 file etc.
-pico_add_extra_outputs(picow_ble_usb_hid_bridge)
+pico_add_extra_outputs(${PROJECT_NAME})

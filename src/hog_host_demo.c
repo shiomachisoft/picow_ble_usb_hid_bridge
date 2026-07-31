@@ -62,7 +62,7 @@
 #include "hog_host_demo.h"
 // @@add
 // =====>
-#include "picow_bt_example_common.h"
+#include "bt_example_common.h"
 #include "pico/cyw43_arch.h"
 #include "Common.h"
 // <=====
@@ -534,10 +534,10 @@ int btstack_main(int argc, const char * argv[]){
  */
 void ble_host_main(void)
 {
-    // Initialize BTstack for PicoW
-    (void)picow_bt_example_init();
+    // Initialize BTstack for the current board
+    (void)ble_bridge_bt_example_init();
     // Set up and start the main BTstack task
-    picow_bt_example_main();
+    ble_bridge_bt_example_main();
     // Enter the BTstack run loop
     btstack_run_loop_execute();
 }
