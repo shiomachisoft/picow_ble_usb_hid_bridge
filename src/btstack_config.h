@@ -69,6 +69,15 @@
 // We don't give btstack a malloc, so use a fixed-size ATT DB.
 #define MAX_ATT_DB_SIZE 512
 
+// Use the two-step CCC discovery instead of the ENABLE_GATT_FIND_INFORMATION_FOR_CCC_DISCOVERY
+// shortcut that BTStack selects by default.
+// The shortcut assumes the CCC (Client Characteristic Configuration) descriptor
+// is the last one in a characteristic;
+// devices that place further descriptors after it (Report Reference on many
+// keyboards) leave the state machine unable to enable notifications, so
+// discovery stalls until the security manager times out 30 seconds later.
+#define ENABLE_GATT_LEGACY_CCC_DISCOVERY
+
 // BTstack HAL configuration
 #define HAVE_EMBEDDED_TIME_MS
 
