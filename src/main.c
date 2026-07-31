@@ -45,6 +45,7 @@
 // @@add
 // =====>
 volatile bool g_usb_reinit_request = false; // Flag to request USB re-initialization when BLE HID connection is established
+extern volatile bool g_cyw43_initialized;   // Set by Core 1 once cyw43_arch_init() has returned
 // <=====
 
 //--------------------------------------------------------------------+
@@ -270,6 +271,11 @@ void led_blinking_task(void)
     static bool led_state = false;
     // @@chg
     // =====>
+    // The LED hangs off the CYW43, which Core 1 brings up. Touching its SPI bus
+    // from Core 0 before that init has finished wedges the transfer and takes
+    // this core down with it, so stay away until Core 1 says it is ready.
+    if (!g_cyw43_initialized) return;
+
     const uint32_t blink_interval = LED_BLINKING_INTERVAL;
 
     if (is_ble_app_state_ready()) {
