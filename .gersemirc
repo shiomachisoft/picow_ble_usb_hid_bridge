@@ -1,0 +1,6 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/BlankSpruce/gersemi/0.23.2/gersemi/configuration.schema.json
+line_length: 80
+indent: 4
+# The SDK's pico_* commands are not built into gersemi. They format correctly
+# under the generic rules, so the warning is only noise.
+warn_about_unknown_commands: false
