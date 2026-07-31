@@ -1,0 +1,8 @@
+# CMake build directories
+build/
+
+# Clangd internals
+.cache
+
+# Raspberry Pi Pico VS Code extension workspace settings
+.vscode/
