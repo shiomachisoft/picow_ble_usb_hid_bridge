@@ -40,7 +40,11 @@ include(pico_sdk_import.cmake)
 
 # Has to stay below the import above: the SDK installs its toolchain file there,
 # and CMake only honours that before the first project() call.
-project(ble_usb_hid_bridge LANGUAGES C CXX ASM)
+project(
+    ble_usb_hid_bridge
+    VERSION 1.1
+    LANGUAGES C CXX ASM
+)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
