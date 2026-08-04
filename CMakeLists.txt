@@ -38,8 +38,11 @@ option(ENABLE_HEARTBEAT_LOGS "Log a periodic Core 0 heartbeat" OFF)
 # as a bit-banged software UART on an AVR.
 set(UART_BAUD_RATE 115200 CACHE STRING "Baud rate of the log UART")
 
+# Firmware sources live one level down from this file, in src/.
+set(FW_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
+
 # Pull in Raspberry Pi Pico SDK (must be before project)
-include(pico_sdk_import.cmake)
+include(${FW_SRC_DIR}/pico_sdk_import.cmake)
 
 # Has to stay below the import above: the SDK installs its toolchain file there,
 # and CMake only honours that before the first project() call.
@@ -62,11 +65,11 @@ add_compile_options(
 # Add executable.
 add_executable(
     ${PROJECT_NAME}
-    main.c
-    usb_descriptors.c
-    hog_host_demo.c
-    bt_example_common.c
-    Common.c
+    ${FW_SRC_DIR}/main.c
+    ${FW_SRC_DIR}/usb_descriptors.c
+    ${FW_SRC_DIR}/hog_host_demo.c
+    ${FW_SRC_DIR}/bt_example_common.c
+    ${FW_SRC_DIR}/Common.c
 )
 
 target_link_libraries(
@@ -83,7 +86,7 @@ target_link_libraries(
     pico_btstack_cyw43
     pico_cyw43_arch_threadsafe_background
 )
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${FW_SRC_DIR})
 target_compile_definitions(
     ${PROJECT_NAME}
     PRIVATE CYW43_LWIP=0 PICO_DEFAULT_UART_BAUD_RATE=${UART_BAUD_RATE}
@@ -101,7 +104,7 @@ if(ENABLE_HEARTBEAT_LOGS)
 endif()
 
 pico_btstack_make_gatt_header(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/hog_host_demo.gatt
+    ${FW_SRC_DIR}/hog_host_demo.gatt
 )
 
 # disable usb output, enable uart output

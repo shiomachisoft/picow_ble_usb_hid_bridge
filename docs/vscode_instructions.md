@@ -15,7 +15,8 @@ These versions are known to work:
 
 1.  Open a new VS Code window.
 2.  Click "Import Project" in the Raspberry Pi Pico extension.
-3.  For "Location", select the `src` folder, which holds the firmware sources.
+3.  For "Location", select this repository's root folder, which holds
+    `CMakeLists.txt`.
 4.  For "Select Pico SDK version", select "v2.2.0".
 5.  Click "Import".
 6.  Under "Switch Build Type", pick "Release" or "Debug".

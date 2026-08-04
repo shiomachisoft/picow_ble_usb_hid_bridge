@@ -1,0 +1,44 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build/${presetName}"
+        },
+        {
+            "name": "pico_w",
+            "inherits": "base",
+            "displayName": "Pico W",
+            "description": "Build for the Pico W (RP2040)",
+            "cacheVariables": {
+                "PICO_BOARD": "pico_w"
+            }
+        },
+        {
+            "name": "pico2_w",
+            "inherits": "base",
+            "displayName": "Pico 2 W",
+            "description": "Build for the Pico 2 W (RP2350)",
+            "cacheVariables": {
+                "PICO_BOARD": "pico2_w"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "pico_w",
+            "configurePreset": "pico_w"
+        },
+        {
+            "name": "pico2_w",
+            "configurePreset": "pico2_w"
+        }
+    ]
+}

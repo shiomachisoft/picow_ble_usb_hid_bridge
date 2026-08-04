@@ -6,7 +6,13 @@
 
 - Pico 2 W (RP2350) support alongside the Pico W. `PICO_BOARD` picks the target
   and defaults to `pico2_w`.
-- `flake.nix`, pinning the compiler, CMake, picotool and Pico SDK 2.2.0.
+- `flake.nix`, pinning the compiler, CMake, picotool and Pico SDK 2.2.0, for
+  `x86_64-linux`, `aarch64-linux` and `aarch64-darwin`.
+- `CMakePresets.json`, with a `pico_w` and a `pico2_w` preset, each building
+  into its own `build/<preset>/` directory.
+- `nix build .#pico_w` and `.#pico2_w` package outputs, each a sandboxed,
+  preset-driven build of `ble_usb_hid_bridge.uf2`; plain `nix build` is an
+  alias for `.#pico2_w`.
 - `ENABLE_USB_LOGGING`, `ENABLE_HEARTBEAT_LOGS` and `UART_BAUD_RATE` build
   options.
 - `docs/` with build, VS Code, troubleshooting and verified-device guides.
@@ -14,6 +20,9 @@
 ### Changed
 
 - Sources moved from `src_fw/picow_ble_usb_hid_bridge/` to `src/`.
+  `CMakeLists.txt` and `CMakePresets.json` sit at the repo root, one level
+  above; the VS Code extension's "Location" is now the repo root instead of
+  `src/`.
 - The project and executable are now `ble_usb_hid_bridge`, so the build produces
   `ble_usb_hid_bridge.uf2`. `picow_bt_example_common.{c,h}` became
   `bt_example_common.{c,h}`.

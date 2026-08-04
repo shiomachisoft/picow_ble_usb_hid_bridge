@@ -1,6 +1,10 @@
 # CMake build directories
 build/
 
+# `nix build` result symlinks
+result
+result-*
+
 # Clangd internals
 .cache
 
