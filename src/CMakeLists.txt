@@ -45,7 +45,7 @@ include(pico_sdk_import.cmake)
 # and CMake only honours that before the first project() call.
 project(
     ble_usb_hid_bridge
-    VERSION 1.1
+    VERSION 2.0
     LANGUAGES C CXX ASM
 )
 
